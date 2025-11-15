@@ -24,20 +24,27 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:5173', // Vite default port
-      process.env.FRONTEND_URL, // Vercel deployment URL
-      'https://feedbacksystem-liard.vercel.app', // Explicitly allow this Vercel domain
+      process.env.FRONTEND_URL, // Vercel production deployment URL
     ].filter(Boolean);
     
-    // In production, allow the specific Vercel domain or any origin if FRONTEND_URL is set
+    // Allow all Vercel deployments (production and preview)
+    // Vercel URLs end with .vercel.app
+    const isVercelDomain = origin.endsWith('.vercel.app');
+    
+    // Allow localhost in development
+    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+    
+    // In production, allow Vercel domains and specified frontend URL
     // In development, allow all localhost origins
     if (
       allowedOrigins.indexOf(origin) !== -1 || 
-      process.env.NODE_ENV === 'development' ||
-      origin.includes('vercel.app') || // Allow all Vercel deployments
-      origin.includes('localhost')
+      isVercelDomain || // Allow all Vercel deployments (production + preview)
+      isLocalhost ||
+      process.env.NODE_ENV === 'development'
     ) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
