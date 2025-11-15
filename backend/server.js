@@ -25,24 +25,38 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:5173', // Vite default port
       process.env.FRONTEND_URL, // Vercel deployment URL
+      'https://feedbacksystem-liard.vercel.app', // Explicitly allow this Vercel domain
     ].filter(Boolean);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    // In production, allow the specific Vercel domain or any origin if FRONTEND_URL is set
+    // In development, allow all localhost origins
+    if (
+      allowedOrigins.indexOf(origin) !== -1 || 
+      process.env.NODE_ENV === 'development' ||
+      origin.includes('vercel.app') || // Allow all Vercel deployments
+      origin.includes('localhost')
+    ) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all origins in production (you can restrict this)
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type'],
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Handle preflight OPTIONS requests globally
+app.options('*', cors(corsOptions));
+
 // Debug middleware to log all API requests
 app.use('/api', (req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Origin: ${req.headers.origin}`);
   next();
 });
 
