@@ -51,6 +51,9 @@ In the **Environment Variables** section, add:
 **Important**: 
 - Replace `your-backend.onrender.com` with your actual Render backend URL
 - Include `/api` at the end (e.g., `https://feedback-backend.onrender.com/api`)
+- **DO NOT include quotes** around the URL value in Vercel
+- Example: `https://feedback-backend.onrender.com/api` (correct)
+- ❌ Wrong: `"https://feedback-backend.onrender.com/api"` (with quotes)
 - This will be used in production instead of the proxy
 
 ### 5. Deploy

@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // Use environment variable for API URL in production, or relative path in development
-// Remove trailing slash if present
-const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+// Remove trailing slash and any quotes that might be in the env variable
+let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Clean up the URL: remove quotes, trailing slashes, and whitespace
+API_BASE_URL = API_BASE_URL.replace(/^["']|["']$/g, '').replace(/\/$/, '').trim();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
