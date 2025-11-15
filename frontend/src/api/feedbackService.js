@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Use environment variable for API URL in production, or relative path in development
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Remove trailing slash if present
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -48,9 +49,24 @@ export const submitFeedback = async (feedbackData) => {
       rating: parseInt(feedbackData.rating, 10),
     };
 
+    // Log the request for debugging
+    console.log('Submitting feedback:', {
+      baseURL: API_BASE_URL,
+      endpoint: '/feedback',
+      fullURL: `${API_BASE_URL}/feedback`,
+      payload
+    });
+    
     const response = await api.post('/feedback', payload);
     return response.data;
   } catch (error) {
+    console.error('Feedback submission error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url,
+    });
     const errorMessage = getErrorMessage(error);
     throw new Error(errorMessage);
   }
